@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Click me if you can</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html, body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            font-family: sans-serif;
+            font-size: 18px;
+        }
+
+        body {
+            max-width: 400px;
+            padding: 1rem;
+            box-sizing: border-box;
+            background-color: rgb(145, 189, 200);
+        }
+
+        button {
+            display: block;
+            padding: 0.75rem 1.25rem;
+            border: 0;
+            border-radius: 4px;
+            color: #fff;
+            user-select: none;
+            font-size: 1rem;
+            transform-style: preserve-3d;
+            transition: box-shadow 0.3s ease;
+        }
+
+        button#yes-button {
+            background-color: rgb(203, 147, 203);
+        }
+
+        button#no-button {
+            background-color: rgb(230, 112, 112);
+            transition: box-shadow 0.3s ease;
+        }
+
+        button:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        button#no-button:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px; /* Adjust margin as needed */
+        }
+
+        .button-wrapper {
+            position: relative;
+            perspective: 400px;
+            width: calc(50% - 75px); /* Adjust width to leave space between buttons */
+        }
+
+        .spacer {
+            width: 150px; /* Adjust the space between buttons */
+        }
+
+        button:before,
+        button:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            border-radius: 4px;
+            background-color: hsl(218deg 92% 35%);
+            transform: translateZ(-5px);
+        }
+
+        button:after {
+            background-color: hsl(218deg 92% 20%);
+            transform: translateZ(-10px);
+        }
+
+        .button-wrapper {
+            position: relative;
+            perspective: 400px;
+            align-self: flex-start;
+        }
+
+        hgroup {
+            width: 100%;
+            margin: 0 0 2rem 0;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+        }
+
+        h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #888;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        @keyframes celebrate {
+            0% {
+                transform: scale(1) rotate(0);
+            }
+            50% {
+                transform: scale(1.2) rotate(15deg);
+            }
+            100% {
+                transform: scale(1) rotate(0);
+            }
+        }
+
+        .celebrate {
+            animation: celebrate 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+<hgroup>
+    <h1>Do you wanna be my girlfriend?</h1>
+    <div class="button-container">
+        <div class="button-wrapper">
+            <button id="yes-button">Yes!!!</button>
+        </div>
+        <div class="button-wrapper">
+            <button id="no-button">No :(</button>
+        </div>
+    </div>
+</hgroup>
+
+<script>
+    const noButton = document.getElementById('no-button');
+    const yesButton = document.getElementById('yes-button');
+
+    document.addEventListener('mousemove', event => {
+        const radius = Math.max(noButton.offsetWidth * 0.75, noButton.offsetHeight * 0.75, 100);
+
+        const bx = noButton.parentNode.offsetLeft + noButton.offsetLeft + noButton.offsetWidth / 2;
+        const by = noButton.parentNode.offsetTop + noButton.offsetTop + noButton.offsetHeight / 2;
+
+        const dist = distanceBetween(event.clientX, event.clientY, bx, by);
+        const angle = Math.atan2(event.clientY - by, event.clientX - bx);
+
+        const ox = -1 * Math.cos(angle) * Math.max((radius - dist), 0);
+        const oy = -1 * Math.sin(angle) * Math.max((radius - dist), 0);
+
+        const rx = oy / 2;
+        const ry = -ox / 2;
+
+        noButton.style.transition = `all 0.1s ease`;
+        noButton.style.transform = `translate(${ox}px, ${oy}px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+        noButton.style.boxShadow = `0px ${Math.abs(oy)}px ${Math.abs(oy) / radius * 40}px rgba(0,0,0,0.15)`;
+    });
+
+    noButton.addEventListener('click', event => noButton.textContent = 'You win 🎉🙃');
+    noButton.addEventListener('keydown', event => {
+        event.preventDefault();
+        noButton.textContent = 'No cheating 🙅‍♂️';
+    });
+    noButton.click = () => noButton.textContent = 'No cheating 🙅‍♂️';
+
+    if (navigator.userAgent.match(/Android|iPhone|iPad|iPod/i)) {
+        yesButton.textContent = 'This thing doesn\'t work with touch 😢';
+        noButton.textContent = 'This thing doesn\'t work with touch 😢';
+    }
+
+    yesButton.addEventListener('click', event => {
+        yesButton.textContent = 'You win 🎉🙃';
+        document.body.classList.add('celebrate');
+        setTimeout(() => {
+            document.body.classList.remove('celebrate');
+        }, 1000);
+        noButton.style.display = 'none'; // Add this line to hide the "No :(" button
+    });
+
+    const distanceBetween = (p1x, p1y, p2x, p2y) => {
+        const dx = p1x - p2x;
+        const dy = p1y - p2y;
+        return Math.sqrt(dx * dx + dy * dy);
+    };
+</script>
+</body>
+</html>
